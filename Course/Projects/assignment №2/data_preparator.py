@@ -1,6 +1,14 @@
 import pandas as pd
 import numpy as np
 
+class DfReader:
+
+    def __init__(self, path,target):
+        self.df = pd.read_csv(path)
+        self.target = target
+
+    def DfMaker(self):
+        pass
 
 class PandasDfCreator:
 
