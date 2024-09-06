@@ -1,43 +1,49 @@
 import pandas as pd
-import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
-class DfReader:
 
-    def __init__(self, path,target):
-        self.df = pd.read_csv(path)
+class DataPreparator:
+    def __init__(self, df: pd.DataFrame, target: str, test_size: float):
+        self.df = df
         self.target = target
+        self.test_size = test_size
 
-    def DfMaker(self):
-        pass
+        # Автоматически определяем признаки и категориальные признаки
+        self.features = [col for col in df.columns if col != self.target]
+        self.categorical_features = df.select_dtypes(include=['object', 'category']).columns.tolist()
+        self.numeric_features = df.select_dtypes(include=['number']).columns.tolist()
 
-class PandasDfCreator:
+    def prepare_data(self):
+        # Разделение данных на признаки и целевую переменную
+        X = self.df[self.features]
+        y = self.df[self.target]
 
-    def __init__(self, n_train, n_test, noise):
-        self.n_train = n_train
-        self.n_test = n_test
-        self.noise = noise
+        # Определение трансформеров для числовых и категориальных данных
+        numeric_transformer = Pipeline(steps=[
+            ('imputer', SimpleImputer(strategy='mean'))
+        ])
 
-    def generate(self, n_samples):
-        X = np.random.rand(n_samples) * 10 - 5
-        X = np.sort(X).ravel()
-        y = (
-            np.exp(-(X ** 2)) + 1.5 * np.exp(-(X - 2) ** 2) + np.random.normal(0.0, self.noise, n_samples)
-        )
+        categorical_transformer = Pipeline(steps=[
+            ('imputer', SimpleImputer(strategy='most_frequent')),
+            ('onehot', OneHotEncoder(handle_unknown='ignore'))
+        ])
 
-        return X, y
+        # Комбинирование трансформеров с помощью ColumnTransformer
+        preprocessor = ColumnTransformer(
+            transformers=[
+                ('num', numeric_transformer, self.numeric_features),
+                ('cat', categorical_transformer, self.categorical_features)
+            ])
 
-    def create_random_df(self):
-        X_train, y_train = self.generate(n_samples=self.n_train)
-        X_test, y_test = self.generate(n_samples=self.n_test)
+        # Применение трансформаций к данным
+        X_preprocessed = preprocessor.fit_transform(X)
 
-        train_df = pd.DataFrame()
-        test_df = pd.DataFrame()
+        # Разделение на тренировочную и тестовую выборки
+        X_train, X_test, y_train, y_test = train_test_split(X_preprocessed, y, test_size=self.test_size,
+                                                            random_state=42)
 
-        train_df['X'] = X_train
-        train_df['y'] = y_train
-        test_df['X'] = X_test
-        test_df['y'] = y_test
-
-        print(test_df.info())
-
-        return train_df, test_df
+        return X_train, X_test, y_train, y_test
