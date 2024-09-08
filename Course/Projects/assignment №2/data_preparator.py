@@ -7,13 +7,13 @@ from sklearn.pipeline import Pipeline
 
 
 class DataPreparator:
-    def __init__(self, df: pd.DataFrame, target: str, test_size: float):
+    def __init__(self, df: pd.DataFrame, target: str, test_size=0.2):
         self.df = df
         self.target = target
         self.test_size = test_size
 
         # Автоматически определяем признаки и категориальные признаки
-        self.features = [col for col in df.columns if col != self.target]
+        self.features = [col for col in df.columns]
         self.categorical_features = df.select_dtypes(include=['object', 'category']).columns.tolist()
         self.numeric_features = df.select_dtypes(include=['number']).columns.tolist()
 

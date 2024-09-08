@@ -6,13 +6,13 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-def main(data_path="D:\machine-learning\Course\Projects\\assignment №2\Data\california_housing_train.csv", model_save_path="D:\machine-learning\Course\Projects\\assignment №2\model"):
+def main(data_path="/Data/car details v4.csv", model_save_path="/model/best_model.pkl"):
     # Загрузка данных
     df = pd.read_csv(data_path)
 
     # Подготовка данных
-    target = 'median_house_value'  # укажите вашу целевую переменную
-    preparator = DataPreparator(df, target, test_size=0.2)
+    target = 'Price'  # укажите вашу целевую переменную
+    preparator = DataPreparator(df, target)
     X_train, X_test, y_train, y_test = preparator.prepare_data()
 
     # Определение моделей и параметров для GridSearch
@@ -62,6 +62,6 @@ def main(data_path="D:\machine-learning\Course\Projects\\assignment №2\Data\ca
 
 
 if __name__ == "__main__":
-    data_path = 'D:\machine-learning\Course\Projects"\"assignment №2\Data\california_housing_train.csv'  # замените на путь к вашему датасету
+    data_path = 'D:/machine-learning/Course/Projects/assignment №2/Data/car details v4.csv'  # замените на путь к вашему датасету
     model_save_path = 'best_model.pkl'  # путь для сохранения модели
     main(data_path, model_save_path)
